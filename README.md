@@ -86,25 +86,3 @@ open climate-action-pledge-microsite.html
 
 </body>
 </html>
-<!-- Video Demo Section -->
-<section id="demo-video" style="max-width:900px;margin:2rem auto;text-align:center;">
-  <figure style="border:8px solid #ecfdf5;border-radius:12px;padding:10px;box-shadow:0 6px 18px rgba(0,0,0,0.15);background:white;">
-    <video
-      controls
-      playsinline
-      preload="metadata"
-      style="width:100%;height:auto;border-radius:8px;"
-      poster="poster.png"  <!-- Optional thumbnail image -->
-    >
-      <source src="https://github.com/saaapuuuuuu/climate-action-pledge-microsite/raw/main/working.mp4" type="video/mp4" />
-      Your browser does not support embedded video. 
-      <a href="https://github.com/saaapuuuuuu/climate-action-pledge-microsite/raw/main/working.mp4">Download it here</a>.
-    </video>
-
-    <figcaption style="margin-top:0.75rem;color:#065f46;font-weight:600;">
-      🎬 Demo: Climate Action Pledge Microsite in Action
-    </figcaption>
-  </figure>
-</section>
-
-
