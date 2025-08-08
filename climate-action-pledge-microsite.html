@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Climate Action Pledge</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts - Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <!-- html2canvas for certificate image generation -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0fdf4; /* Light green background */
+        }
+        .section-padding {
+            padding: 6rem 1.5rem; /* Increased padding */
+        }
+        @media (min-width: 768px) {
+            .section-padding {
+                padding: 8rem 4rem; /* Increased padding for desktop */
+            }
+        }
+        /* Custom scroll behavior for smooth scrolling */
+        html {
+            scroll-behavior: smooth;
+        }
+        /* Style for the custom modal */
+        .modal {
+            display: none; /* Hidden by default */
+            position: fixed; /* Stay in place */
+            z-index: 1000; /* Sit on top */
+            left: 0;
+            top: 0;
+            width: 100%; /* Full width */
+            height: 100%; /* Full height */
+            overflow: auto; /* Enable scroll if needed */
+            background-color: rgba(0,0,0,0.6); /* Darker overlay */
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(5px); /* Subtle blur behind modal */
+        }
+        .modal-content {
+            background-color: #fff;
+            margin: auto;
+            padding: 2.5rem; /* Increased padding */
+            border-radius: 1rem; /* More rounded */
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2), 0 10px 10px -5px rgba(0, 0, 0, 0.08); /* Stronger shadow */
+            max-width: 90%;
+            width: 550px; /* Slightly wider */
+            text-align: center;
+            position: relative;
+            animation: fadeIn 0.3s ease-out; /* Fade in animation for modal */
+        }
+        .close-button {
+            color: #aaa;
+            font-size: 32px; /* Larger close button */
+            font-weight: bold;
+            position: absolute;
+            top: 0.75rem;
+            right: 1.25rem;
+            cursor: pointer;
+            transition: color 0.2s ease-in-out;
+        }
+        .close-button:hover,
+        .close-button:focus {
+            color: #4b5563; /* Darker grey on hover */
+            text-decoration: none;
+        }
+
+        /* Input field validation styles */
+        .input-error {
+            border-color: #ef4444 !important; /* Tailwind red-500 */
+            box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.3) !important; /* Red glow */
+        }
+        .input-success {
+            border-color: #22c55e !important; /* Tailwind green-500 */
+            box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.3) !important; /* Green glow */
+        }
+
+        /* --- Animations --- */
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes popIn {
+            from {
+                opacity: 0;
+                transform: scale(0.7);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        /* Custom hero button pulse/shimmer */
+        .hero-button-shimmer {
+            position: relative;
+            overflow: hidden;
+        }
+        .hero-button-shimmer::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 30%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.3);
+            transform: skewX(-20deg);
+            transition: left 0.7s ease-in-out;
+        }
+        .hero-button-shimmer:hover::before {
+            left: 120%;
+        }
+
+
+        .animate-fade-in-down {
+            animation: fadeInDown 1.2s ease-out forwards;
+            animation-delay: 0.2s;
+            opacity: 0; /* Initial state */
+        }
+
+        .animate-fade-in-up {
+            animation: fadeInUp 1.2s ease-out forwards;
+            animation-delay: 0.4s;
+            opacity: 0; /* Initial state */
+        }
+
+        .animate-pop-in {
+            animation: popIn 1s cubic-bezier(0.68, -0.55, 0.27, 1.55) forwards; /* Bounce effect */
+            animation-delay: 0.6s;
+            opacity: 0; /* Initial state */
+        }
+
+        /* For sections that fade in on scroll */
+        .animated-section {
+            opacity: 0;
+            transition: opacity 1s ease-out, transform 1s ease-out;
+            transform: translateY(40px); /* Increased initial translateY */
+        }
+
+        .animated-section.is-visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* For new pledge wall rows */
+        .pledge-row-enter {
+            animation: slideInRight 0.6s ease-out;
+        }
+
+        /* Subtle hero background gradient for more richness */
+        .hero-background-gradient {
+            background-image: linear-gradient(to bottom right, #10b981, #065f46); /* Emerald-500 to Emerald-900 */
+        }
+        .hero-overlay-gradient {
+            background-image: linear-gradient(to top, rgba(16, 185, 129, 0.8), rgba(6, 95, 70, 0.6)); /* Adjust opacity */
+        }
+        
+        /* Specific pattern for KPI cards */
+        .kpi-card-pattern {
+            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23d1fae5' fill-opacity='0.4'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm10-10h-2v4h4v2h-4v4h-2v-4h-4v-2h4v-4h2zM12 34v-4h-2v4H6v2h4v4h2v-4h4v-2h-4zm10-10h-2v4h4v2h-4v4h-2v-4h-4v-2h4v-4h2zm20 0h-2v4h4v2h-4v4h-2v-4h-4v-2h4v-4h2zM36 0v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zM12 0v-4h-2v4H6v2h4v4h2v-4h4v-2h-4zM36 48v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm10-10h-2v4h4v2h-4v4h-2v-4h-4v-2h4v-4h2zM12 48v-4h-2v4H6v2h4v4h2v-4h4v-2h-4zM24 0v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zM0 48v-4h-2v4H-4v2h4v4h2v-4h4v-2h-4zm0-20v-4h-2v4H-4v2h4v4h2v-4h4v-2h-4z'%3E%3C/path%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+            background-size: 60px 60px;
+        }
+
+        /* Form commitment box styles */
+        .commitment-box {
+            background-color: #ecfdf5; /* Lightest emerald */
+            border-color: #a7f3d0; /* Lighter emerald */
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+        }
+        .commitment-box:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+
+        /* Table row hover and stripe */
+        .pledge-wall-table tbody tr:nth-child(even) {
+            background-color: #f8fafc; /* light gray */
+        }
+        .pledge-wall-table tbody tr:hover {
+            background-color: #ecfdf5; /* Light emerald on hover */
+        }
+
+        /* Subtle animation for the diagonal pattern on the certificate */
+        .certificate-diagonal-pattern {
+            animation: diagonalShift 10s linear infinite;
+        }
+
+        @keyframes diagonalShift {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(10px, 10px); }
+        }
+
+    </style>
+</head>
+<body class="text-gray-800">
+
+    <!-- Header / Navbar -->
+    <header class="bg-emerald-700 text-white shadow-xl p-4 flex justify-between items-center z-20 sticky top-0">
+        <h1 class="text-2xl md:text-3xl font-bold">Climate Action Pledge</h1>
+        <nav>
+            <a href="#pledge-form" class="bg-lime-300 text-emerald-900 px-5 py-2.5 rounded-lg font-semibold shadow-md hover:bg-lime-200 transition-all transform hover:scale-105">Take the Pledge</a>
+        </nav>
+    </header>
+
+    <!-- Hero Section -->
+    <section id="hero" class="relative bg-emerald-800 text-white section-padding text-center overflow-hidden">
+        <!-- Background Gradient/Pattern Overlay -->
+        <div class="absolute inset-0 hero-background-gradient opacity-90"></div>
+        <div class="absolute inset-0 hero-overlay-gradient"></div>
+        <div class="relative z-10 p-8 rounded-xl max-w-4xl mx-auto backdrop-filter backdrop-blur-sm bg-black bg-opacity-10">
+            <h2 class="text-4xl md:text-6xl font-extrabold leading-tight mb-6 animate-fade-in-down">Be Cool Enough to Care!</h2>
+            <p class="text-xl md:text-2xl mb-10 animate-fade-in-up font-light text-emerald-100">Your small actions create a ripple effect, building a sustainable future for our planet.</p>
+            <button onclick="document.getElementById('pledge-form').scrollIntoView({ behavior: 'smooth' });"
+                    class="bg-lime-400 text-emerald-900 px-10 py-5 rounded-full text-xl font-bold shadow-xl hover:bg-lime-300 transition-all transform hover:scale-105 hero-button-shimmer border-2 border-lime-300">
+                Take the Pledge Now!
+            </button>
+        </div>
+    </section>
+
+    <!-- Live KPIs Section -->
+    <section id="kpis" class="bg-white section-padding text-center animated-section shadow-inner">
+        <h2 class="text-3xl md:text-5xl font-bold mb-16 text-emerald-800">Our Collective Impact So Far</h2>
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-10 max-w-7xl mx-auto">
+            <div class="bg-emerald-100 p-8 rounded-2xl shadow-xl border-t-4 border-emerald-300 flex flex-col items-center justify-center kpi-card-pattern transition-transform hover:scale-105 duration-300 ease-in-out">
+                <span class="text-5xl mb-4" role="img" aria-label="target">🎯</span>
+                <h3 class="text-2xl font-semibold text-emerald-700">Target Pledges</h3>
+                <p class="text-5xl font-extrabold mt-3 text-emerald-900 drop-shadow-md">1,000,000</p>
+            </div>
+            <div class="bg-emerald-100 p-8 rounded-2xl shadow-xl border-t-4 border-emerald-300 flex flex-col items-center justify-center kpi-card-pattern transition-transform hover:scale-105 duration-300 ease-in-out">
+                <span class="text-5xl mb-4" role="img" aria-label="achieved">✅</span>
+                <h3 class="text-2xl font-semibold text-emerald-700">Achieved Pledges</h3>
+                <p id="achieved-pledges" class="text-5xl font-extrabold mt-3 text-emerald-900 drop-shadow-md" data-target="0">0</p>
+            </div>
+            <div class="bg-emerald-100 p-8 rounded-2xl shadow-xl border-t-4 border-emerald-300 flex flex-col items-center justify-center kpi-card-pattern transition-transform hover:scale-105 duration-300 ease-in-out">
+                <span class="text-5xl mb-4" role="img" aria-label="students">📚</span>
+                <h3 class="text-2xl font-semibold text-emerald-700">Students Pledged</h3>
+                <p id="students-pledged" class="text-5xl font-extrabold mt-3 text-emerald-900 drop-shadow-md" data-target="0">0</p>
+            </div>
+            <div class="bg-emerald-100 p-8 rounded-2xl shadow-xl border-t-4 border-emerald-300 flex flex-col items-center justify-center kpi-card-pattern transition-transform hover:scale-105 duration-300 ease-in-out">
+                <span class="text-5xl mb-4" role="img" aria-label="professionals">💼</span>
+                <h3 class="text-2xl font-semibold text-emerald-700">Professionals Pledged</h3>
+                <p id="professionals-pledged" class="text-5xl font-extrabold mt-3 text-emerald-900 drop-shadow-md" data-target="0">0</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Why Take Climate Action Section -->
+    <section id="why-act" class="bg-emerald-50 section-padding text-center animated-section">
+        <div class="max-w-4xl mx-auto">
+            <span class="text-7xl mb-6 inline-block animate-pop-in" role="img" aria-label="planet earth">🌍</span>
+            <h2 class="text-3xl md:text-5xl font-bold mb-8 text-emerald-800">Why Your Action Matters</h2>
+            <p class="text-lg md:text-2xl leading-relaxed text-gray-700 font-light px-4">
+                Climate change demands urgent attention, and while it's a global challenge, every individual action contributes to a powerful collective impact. By committing to climate-positive habits, you join a growing movement dedicated to building a sustainable future. Your pledge inspires others and demonstrates that together, we can create meaningful change. Let's protect our planet for generations to come.
+            </p>
+        </div>
+    </section>
+
+    <!-- Pledge Form Section -->
+    <section id="pledge-form" class="bg-white section-padding animated-section">
+        <div class="max-w-3xl mx-auto bg-emerald-100 p-10 rounded-3xl shadow-2xl border-t-8 border-emerald-600">
+            <h2 class="text-3xl md:text-5xl font-bold mb-10 text-center text-emerald-800">Take Your Climate Pledge!</h2>
+            <form id="climate-pledge-form" class="space-y-8">
+                <!-- Personal Information -->
+                <div>
+                    <label for="name" class="block text-lg font-medium text-gray-700 mb-2">Full Name <span class="text-red-500">*</span></label>
+                    <input type="text" id="name" name="name" required
+                           class="mt-1 block w-full px-5 py-3 border border-gray-300 rounded-lg shadow-sm focus:ring-emerald-500 focus:border-emerald-500 text-lg transition-all duration-200">
+                </div>
+                <div>
+                    <label for="email" class="block text-lg font-medium text-gray-700 mb-2">Email <span class="text-red-500">*</span></label>
+                    <input type="email" id="email" name="email" required
+                           class="mt-1 block w-full px-5 py-3 border border-gray-300 rounded-lg shadow-sm focus:ring-emerald-500 focus:border-emerald-500 text-lg transition-all duration-200">
+                </div>
+                <div>
+                    <label for="mobile" class="block text-lg font-medium text-gray-700 mb-2">Mobile Number <span class="text-red-500">*</span></label>
+                    <input type="tel" id="mobile" name="mobile" required
+                           class="mt-1 block w-full px-5 py-3 border border-gray-300 rounded-lg shadow-sm focus:ring-emerald-500 focus:border-emerald-500 text-lg transition-all duration-200">
+                    <p class="text-sm text-gray-500 mt-2">Mobile Number and Email are required for validation but never shown publicly. Data is used only for verification and engagement.</p>
+                </div>
+                <div>
+                    <label for="state" class="block text-lg font-medium text-gray-700 mb-2">State (e.g., California)</label>
+                    <input type="text" id="state" name="state"
+                           class="mt-1 block w-full px-5 py-3 border border-gray-300 rounded-lg shadow-sm focus:ring-emerald-500 focus:border-emerald-500 text-lg transition-all duration-200">
+                </div>
+                <div>
+                    <label for="profile-type" class="block text-lg font-medium text-gray-700 mb-2">Profile Type <span class="text-red-500">*</span></label>
+                    <select id="profile-type" name="profileType" required
+                            class="mt-1 block w-full px-5 py-3 border border-gray-300 rounded-lg shadow-sm focus:ring-emerald-500 focus:border-emerald-500 text-lg transition-all duration-200 bg-white">
+                        <option value="">Select your profile</option>
+                        <option value="Student">Student</option>
+                        <option value="Working Professional">Working Professional</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+
+                <!-- Commitment Themes -->
+                <div class="space-y-6">
+                    <h3 class="text-2xl md:text-3xl font-semibold text-emerald-800 pt-6 border-t-2 border-emerald-300">My Commitments for Climate Action <span class="text-red-500">*</span></h3>
+
+                    <!-- Theme 1: Energy & Consumption -->
+                    <div class="commitment-box p-6 rounded-xl shadow-md border border-emerald-200">
+                        <p class="text-xl font-semibold text-emerald-700 mb-4">1. Energy & Responsible Consumption</p>
+                        <div class="space-y-3">
+                            <div class="flex items-center">
+                                <input type="checkbox" id="commit1_1" name="commitment" value="Reduce energy use at home" class="h-6 w-6 text-emerald-600 rounded-md focus:ring-emerald-500 border-gray-300">
+                                <label for="commit1_1" class="ml-4 text-base md:text-lg text-gray-700 cursor-pointer">Reduce energy use at home (e.g., turn off lights, unplug devices)</label>
+                            </div>
+                            <div class="flex items-center">
+                                <input type="checkbox" id="commit1_2" name="commitment" value="Choose sustainable products" class="h-6 w-6 text-emerald-600 rounded-md focus:ring-emerald-500 border-gray-300">
+                                <label for="commit1_2" class="ml-4 text-base md:text-lg text-gray-700 cursor-pointer">Choose sustainable, locally sourced products</label>
+                            </div>
+                            <div class="flex items-center">
+                                <input type="checkbox" id="commit1_3" name="commitment" value="Recycle and compost diligently" class="h-6 w-6 text-emerald-600 rounded-md focus:ring-emerald-500 border-gray-300">
+                                <label for="commit1_3" class="ml-4 text-base md:text-lg text-gray-700 cursor-pointer">Recycle and compost diligently</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Theme 2: Transportation & Travel -->
+                    <div class="commitment-box p-6 rounded-xl shadow-md border border-emerald-200">
+                        <p class="text-xl font-semibold text-emerald-700 mb-4">2. Green Mobility & Travel</p>
+                        <div class="space-y-3">
+                            <div class="flex items-center">
+                                <input type="checkbox" id="commit2_1" name="commitment" value="Walk/bike more often" class="h-6 w-6 text-emerald-600 rounded-md focus:ring-emerald-500 border-gray-300">
+                                <label for="commit2_1" class="ml-4 text-base md:text-lg text-gray-700 cursor-pointer">Walk or bike for short distances instead of driving</label>
+                            </div>
+                            <div class="flex items-center">
+                                <input type="checkbox" id="commit2_2" name="commitment" value="Use public transport" class="h-6 w-6 text-emerald-600 rounded-md focus:ring-emerald-500 border-gray-300">
+                                <label for="commit2_2" class="ml-4 text-base md:text-lg text-gray-700 cursor-pointer">Utilize public transportation or carpool</label>
+                            </div>
+                            <div class="flex items-center">
+                                <input type="checkbox" id="commit2_3" name="commitment" value="Reduce air travel" class="h-6 w-6 text-emerald-600 rounded-md focus:ring-emerald-500 border-gray-300">
+                                <label for="commit2_3" class="ml-4 text-base md:text-lg text-gray-700 cursor-pointer">Consider reducing non-essential air travel</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Theme 3: Water & Nature -->
+                    <div class="commitment-box p-6 rounded-xl shadow-md border border-emerald-200">
+                        <p class="text-xl font-semibold text-emerald-700 mb-4">3. Water Conservation & Nature</p>
+                        <div class="space-y-3">
+                            <div class="flex items-center">
+                                <input type="checkbox" id="commit3_1" name="commitment" value="Conserve water at home" class="h-6 w-6 text-emerald-600 rounded-md focus:ring-emerald-500 border-gray-300">
+                                <label for="commit3_1" class="ml-4 text-base md:text-lg text-gray-700 cursor-pointer">Conserve water by taking shorter showers and fixing leaks</label>
+                            </div>
+                            <div class="flex items-center">
+                                <input type="checkbox" id="commit3_2" name="commitment" value="Support local conservation" class="h-6 w-6 text-emerald-600 rounded-md focus:ring-emerald-500 border-gray-300">
+                                <label for="commit3_2" class="ml-4 text-base md:text-lg text-gray-700 cursor-pointer">Support local conservation efforts or plant trees</label>
+                            </div>
+                            <div class="flex items-center">
+                                <input type="checkbox" id="commit3_3" name="commitment" value="Eat more plant-based meals" class="h-6 w-6 text-emerald-600 rounded-md focus:ring-emerald-500 border-gray-300">
+                                <label for="commit3_3" class="ml-4 text-base md:text-lg text-gray-700 cursor-pointer">Incorporate more plant-based meals into your diet</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit"
+                        class="w-full bg-gradient-to-r from-emerald-500 to-emerald-700 text-white px-8 py-4 rounded-lg font-bold text-xl shadow-lg hover:from-emerald-600 hover:to-emerald-800 transition-all duration-300 transform hover:scale-105">
+                    Submit Your Pledge
+                </button>
+            </form>
+        </div>
+    </section>
+
+    <!-- Certificate Generator Section -->
+    <div id="certificate-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-button" onclick="closeModal()">&times;</span>
+            <div id="certificate-display" class="bg-gradient-to-br from-lime-200 to-emerald-200 p-8 md:p-12 rounded-xl shadow-2xl border-4 border-emerald-500 text-center relative overflow-hidden">
+                <!-- Background pattern overlay -->
+                <div class="absolute inset-0 opacity-15 pointer-events-none certificate-diagonal-pattern">
+                    <svg class="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
+                        <path d="M-1,1 l2,-2 M0,10 l10,-10 M9,11 l2,-2" stroke="#4ade80" stroke-width="2"></path>
+                        <path d="M-1,21 l2,-2 M0,30 l10,-10 M9,31 l2,-2" stroke="#4ade80" stroke-width="2"></path>
+                        <path d="M-1,41 l2,-2 M0,50 l10,-10 M9,51 l2,-2" stroke="#4ade80" stroke-width="2"></path>
+                        <path d="M-1,61 l2,-2 M0,70 l10,-10 M9,71 l2,-2" stroke="#4ade80" stroke-width="2"></path>
+                        <path d="M-1,81 l2,-2 M0,90 l10,-10 M9,91 l2,-2" stroke="#4ade80" stroke-width="2"></path>
+                    </svg>
+                </div>
+                <h2 class="text-4xl md:text-5xl font-extrabold text-emerald-900 mb-4 drop-shadow-sm">Certificate of Climate Action</h2>
+                <p class="text-xl md:text-2xl font-semibold text-emerald-700 mb-2">Awarded to:</p>
+                <p id="certificate-name" class="text-5xl md:text-6xl font-extrabold text-emerald-900 mb-6 capitalize leading-tight drop-shadow-md"></p>
+                <p class="text-2xl md:text-3xl font-semibold text-gray-800 mb-8">For being</p>
+                <p class="text-4xl md:text-5xl font-extrabold text-emerald-600 mb-6 animate-pop-in">"Cool Enough to Care!"</p>
+                <div id="certificate-hearts" class="text-6xl mb-6 flex justify-center space-x-2"></div>
+                <p class="text-lg md:text-xl text-gray-600 mt-8 font-light">Thank you for your commitment to a sustainable future.</p>
+            </div>
+            <button id="download-certificate-button" class="mt-8 bg-blue-600 text-white px-8 py-3 rounded-xl font-bold text-lg shadow-lg hover:bg-blue-700 transition-colors transform hover:scale-105">Download Certificate (PNG)</button>
+            <div id="certificate-loading" class="mt-4 text-emerald-700 hidden text-sm">Generating certificate... please wait.</div>
+        </div>
+    </div>
+
+
+    <!-- Public Pledge Wall Section -->
+    <section id="pledge-wall" class="bg-emerald-50 section-padding animated-section">
+        <div class="max-w-7xl mx-auto">
+            <h2 class="text-3xl md:text-5xl font-bold mb-12 text-center text-emerald-800">Our Community's Pledges</h2>
+            <div class="overflow-x-auto bg-white rounded-2xl shadow-xl border border-emerald-200 p-6 pledge-wall-table">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-emerald-100">
+                        <tr>
+                            <th scope="col" class="px-6 py-4 text-left text-sm font-medium text-gray-600 uppercase tracking-wider rounded-tl-xl">Pledge ID</th>
+                            <th scope="col" class="px-6 py-4 text-left text-sm font-medium text-gray-600 uppercase tracking-wider">Name</th>
+                            <th scope="col" class="px-6 py-4 text-left text-sm font-medium text-gray-600 uppercase tracking-wider">Date</th>
+                            <th scope="col" class="px-6 py-4 text-left text-sm font-medium text-gray-600 uppercase tracking-wider">State</th>
+                            <th scope="col" class="px-6 py-4 text-left text-sm font-medium text-gray-600 uppercase tracking-wider">Profile</th>
+                            <th scope="col" class="px-6 py-4 text-left text-sm font-medium text-gray-600 uppercase tracking-wider rounded-tr-xl">⭐ Love for Planet</th>
+                        </tr>
+                    </thead>
+                    <tbody id="pledge-wall-body" class="divide-y divide-gray-200">
+                        <!-- Pledge entries will be inserted here by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+            <p class="text-center text-gray-600 mt-8 text-base italic">
+                *Note: Your email and mobile numbers are kept private for your security and privacy and are never shown publicly.
+            </p>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-emerald-900 text-white p-10 text-center mt-12 shadow-inner">
+        <p class="text-lg">&copy; 2025 Climate Action Pledge. All rights reserved.</p>
+        <p class="text-base mt-3 opacity-90">Together, we can make a difference. Join us!</p>
+    </footer>
+
+    <script>
+        // Array to store pledges, initialized from localStorage
+        let pledges = JSON.parse(localStorage.getItem('climatePledges')) || [];
+        const maxCommitments = document.querySelectorAll('input[name="commitment"]').length; // Dynamically get max commitments
+
+        // Function to animate numbers for KPIs
+        function animateNumber(elementId, start, end, duration) {
+            const element = document.getElementById(elementId);
+            if (!element) return;
+
+            let startTime = null;
+            const current = parseInt(element.textContent.replace(/,/g, '')); // Get current displayed value
+
+            function step(currentTime) {
+                if (!startTime) startTime = currentTime;
+                const progress = Math.min((currentTime - startTime) / duration, 1);
+                // Animate from current displayed value to target end value
+                const value = Math.floor(progress * (end - current) + current);
+                element.textContent = value.toLocaleString();
+                if (progress < 1) {
+                    requestAnimationFrame(step);
+                } else {
+                    element.textContent = end.toLocaleString(); // Ensure final value is exact
+                }
+            }
+            // Only animate if the target value is different from the current displayed value
+            if (end !== current) {
+                requestAnimationFrame(step);
+            }
+        }
+
+        // Function to update KPIs
+        function updateKPIs() {
+            const currentPledges = pledges || [];
+            const totalPledges = currentPledges.length;
+            const students = currentPledges.filter(p => p.profileType === 'Student').length;
+            const professionals = currentPledges.filter(p => p.profileType === 'Working Professional').length;
+
+            // Animate KPI numbers
+            animateNumber('achieved-pledges', 0, totalPledges, 1000); // Start from 0 to target
+            animateNumber('students-pledged', 0, students, 1000);
+            animateNumber('professionals-pledged', 0, professionals, 1000);
+        }
+
+        // Function to populate the Pledge Wall
+        function populatePledgeWall() {
+            const pledgeWallBody = document.getElementById('pledge-wall-body');
+            pledgeWallBody.innerHTML = ''; // Clear existing entries
+
+            const currentPledges = pledges || [];
+            // Sort pledges by date, newest first
+            const sortedPledges = [...currentPledges].sort((a, b) => new Date(b.date) - new Date(a.date));
+
+            sortedPledges.forEach(pledge => {
+                const row = pledgeWallBody.insertRow();
+                // Apply entry animation class to each new row
+                row.className = 'transition-colors pledge-row-enter'; // Hover styling applied by CSS class
+
+                const pledgeIdCell = row.insertCell();
+                pledgeIdCell.className = 'px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900';
+                pledgeIdCell.textContent = pledge.id.substring(0, 8).toUpperCase(); // Show first 8 chars of ID, uppercase
+
+                const nameCell = row.insertCell();
+                nameCell.className = 'px-6 py-4 whitespace-nowrap text-sm text-gray-700 capitalize';
+                nameCell.textContent = pledge.name;
+
+                const dateCell = row.insertCell();
+                dateCell.className = 'px-6 py-4 whitespace-nowrap text-sm text-gray-700';
+                dateCell.textContent = new Date(pledge.date).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+
+                const stateCell = row.insertCell();
+                stateCell.className = 'px-6 py-4 whitespace-nowrap text-sm text-gray-700 capitalize';
+                stateCell.textContent = pledge.state || 'N/A';
+
+                const profileCell = row.insertCell();
+                profileCell.className = 'px-6 py-4 whitespace-nowrap text-sm text-gray-700';
+                profileCell.textContent = pledge.profileType;
+
+                const heartsCell = row.insertCell();
+                heartsCell.className = 'px-6 py-4 whitespace-nowrap text-sm text-gray-700 text-3xl'; // Larger hearts
+                heartsCell.innerHTML = '⭐'.repeat(pledge.hearts); // Display stars
+            });
+        }
+
+        // Function to generate and display the certificate
+        function generateCertificate(name, hearts) {
+            document.getElementById('certificate-name').textContent = name;
+            const heartsDisplay = document.getElementById('certificate-hearts');
+            heartsDisplay.innerHTML = '❤️'.repeat(hearts); // Use heart emoji for certificate
+            document.getElementById('certificate-modal').style.display = 'flex'; // Show modal
+        }
+
+        // Function to close the certificate modal
+        function closeModal() {
+            document.getElementById('certificate-modal').style.display = 'none';
+        }
+
+        // Function to download the certificate as a PNG image
+        document.getElementById('download-certificate-button').addEventListener('click', function() {
+            const certificateDisplay = document.getElementById('certificate-display');
+            const downloadButton = this;
+            const loadingIndicator = document.getElementById('certificate-loading');
+
+            downloadButton.disabled = true; // Disable button during generation
+            loadingIndicator.classList.remove('hidden'); // Show loading indicator
+
+            // Use html2canvas to capture the certificate content
+            html2canvas(certificateDisplay, {
+                scale: 3, // Increased scale for even higher resolution image
+                useCORS: true, // Important for background images if any (though currently placeholder)
+                logging: false, // Suppress logs from html2canvas
+                // Set a specific background color for the canvas to ensure transparency issues don't occur
+                // This matches the certificate's background, so it will blend in properly.
+                backgroundColor: certificateDisplay.style.backgroundColor || getComputedStyle(certificateDisplay).backgroundColor
+            }).then(function(canvas) {
+                const link = document.createElement('a');
+                link.download = `climate_pledge_certificate_${Date.now()}.png`; // Unique filename
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+
+                downloadButton.disabled = false; // Re-enable button
+                loadingIndicator.classList.add('hidden'); // Hide loading indicator
+                showCustomMessage("Certificate downloaded successfully!", "info");
+            }).catch(error => {
+                console.error("Error generating certificate:", error);
+                showCustomMessage("Failed to generate certificate image. Please try again.", "error");
+                downloadButton.disabled = false; // Re-enable button
+                loadingIndicator.classList.add('hidden'); // Hide loading indicator
+            });
+        });
+
+        // Handle form submission
+        document.getElementById('climate-pledge-form').addEventListener('submit', function(event) {
+            event.preventDefault(); // Prevent default form submission
+
+            const form = event.target;
+            const nameInput = form.name;
+            const emailInput = form.email;
+            const mobileInput = form.mobile;
+            const stateInput = form.state;
+            const profileTypeInput = form['profileType']; // Use bracket notation for select element
+            const commitmentCheckboxes = Array.from(form.elements.commitment);
+
+            // Reset input styles
+            [nameInput, emailInput, mobileInput, stateInput, profileTypeInput].forEach(input => {
+                input.classList.remove('input-error', 'input-success');
+            });
+            document.querySelectorAll('.commitment-box').forEach(box => box.classList.remove('input-error'));
+
+            const name = nameInput.value.trim();
+            const email = emailInput.value.trim();
+            const mobile = mobileInput.value.trim();
+            const state = stateInput.value.trim();
+            const profileType = profileTypeInput.value;
+            const commitments = commitmentCheckboxes
+                                .filter(checkbox => checkbox.checked)
+                                .map(checkbox => checkbox.value);
+
+            let isValid = true;
+
+            // Basic validation and visual feedback
+            if (!name) { nameInput.classList.add('input-error'); isValid = false; }
+            if (!email) { emailInput.classList.add('input-error'); isValid = false; }
+            if (!mobile) { mobileInput.classList.add('input-error'); isValid = false; }
+            if (!profileType) { profileTypeInput.classList.add('input-error'); isValid = false; }
+            if (commitments.length === 0) {
+                document.querySelectorAll('.commitment-box').forEach(box => box.classList.add('input-error'));
+                isValid = false;
+            }
+
+            if (!isValid) {
+                showCustomMessage("Please fill in all required fields and select at least one commitment.", "error");
+                return;
+            }
+
+            // All inputs are valid, add success class temporarily
+            [nameInput, emailInput, mobileInput, stateInput, profileTypeInput].forEach(input => {
+                input.classList.add('input-success');
+                setTimeout(() => input.classList.remove('input-success'), 2000);
+            });
+            document.querySelectorAll('.commitment-box').forEach(box => box.classList.remove('input-error'));
+
+            // Calculate hearts rating (1-5 hearts based on number of commitments)
+            const hearts = Math.max(1, Math.min(5, Math.ceil((commitments.length / maxCommitments) * 5))); // Ensure between 1 and 5 hearts
+
+            // Create a new pledge object
+            const newPledge = {
+                id: crypto.randomUUID(), // Generate a unique ID
+                name: name,
+                email: email, // Not displayed publicly
+                mobile: mobile, // Not displayed publicly
+                state: state,
+                profileType: profileType,
+                commitments: commitments,
+                hearts: hearts,
+                date: new Date().toISOString() // Store current date as ISO string
+            };
+
+            // Add the new pledge to the array and save to localStorage
+            pledges.push(newPledge);
+            localStorage.setItem('climatePledges', JSON.stringify(pledges));
+
+            // Update KPIs and Pledge Wall
+            updateKPIs();
+            populatePledgeWall();
+
+            // Generate and display certificate
+            generateCertificate(name, hearts);
+
+            // Reset the form
+            form.reset();
+        });
+
+        // Function for custom message box (replacement for alert)
+        function showCustomMessage(message, type = "info") {
+            const existingMessage = document.getElementById('custom-message-box');
+            if (existingMessage) {
+                document.body.removeChild(existingMessage);
+            }
+
+            const messageBox = document.createElement('div');
+            messageBox.id = 'custom-message-box';
+            messageBox.className = 'fixed bottom-6 right-6 p-4 rounded-xl shadow-xl text-white font-bold z-50 transition-all duration-300 transform translate-x-full opacity-0';
+
+            if (type === "error") {
+                messageBox.classList.add('bg-red-600');
+            } else if (type === "info") {
+                messageBox.classList.add('bg-emerald-600');
+            } else { // Default to info
+                messageBox.classList.add('bg-gray-700');
+            }
+
+            messageBox.textContent = message;
+            document.body.appendChild(messageBox);
+
+            // Animate in
+            setTimeout(() => {
+                messageBox.classList.remove('translate-x-full', 'opacity-0');
+                messageBox.classList.add('translate-x-0', 'opacity-100');
+            }, 10);
+
+            // Animate out after a delay
+            setTimeout(() => {
+                messageBox.classList.remove('translate-x-0', 'opacity-100');
+                messageBox.classList.add('translate-x-full', 'opacity-0');
+                setTimeout(() => {
+                    if (document.body.contains(messageBox)) {
+                        document.body.removeChild(messageBox);
+                    }
+                }, 500); // Wait for transition to finish before removing
+            }, 4000); // Message stays longer
+        }
+
+        // Intersection Observer for section animations
+        const animatedSections = document.querySelectorAll('.animated-section');
+
+        const observerOptions = {
+            root: null, // viewport
+            rootMargin: '0px',
+            threshold: 0.1 // 10% of element visible to trigger
+        };
+
+        const sectionObserver = new IntersectionObserver((entries, observer) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('is-visible');
+                    // Special case for KPIs: trigger animation when section becomes visible
+                    if (entry.target.id === 'kpis') {
+                        updateKPIs();
+                    }
+                    observer.unobserve(entry.target); // Stop observing once animated
+                }
+            });
+        }, observerOptions);
+
+        // Initial load: observe sections
+        document.addEventListener('DOMContentLoaded', () => {
+            populatePledgeWall();
+
+            animatedSections.forEach(section => {
+                sectionObserver.observe(section);
+            });
+
+            // If the KPIs section is already visible on load (e.g., short page or large screen), animate them
+            const kpisSection = document.getElementById('kpis');
+            if (kpisSection && kpisSection.getBoundingClientRect().top < window.innerHeight) {
+                updateKPIs();
+            }
+        });
+    </script>
+</body>
+</html>
